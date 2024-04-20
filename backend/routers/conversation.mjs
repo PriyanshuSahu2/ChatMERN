@@ -8,9 +8,9 @@ import { verifyTokenAndAuth } from "../middleware/verifyToken.mjs";
 
 const router = express.Router();
 
-router.get("/:id",verifyTokenAndAuth, getConversation);
+router.get("/:userId",verifyTokenAndAuth, getConversation);
 
-router.post("/",verifyTokenAndAuth, addConversation);
+router.post("/:userId",verifyTokenAndAuth, addConversation);
 
 
 

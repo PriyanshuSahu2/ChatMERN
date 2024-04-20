@@ -1,6 +1,34 @@
 import React from 'react'
 
-const FriendRequestComponents = ({ data }) => {
+const FriendRequestComponents = ({ id, data, handleAcceptFriendRequest, handleRejectFriendRequest }) => {
+
+    const formatTimestamp = (minutes) => {
+        if (minutes < 1) {
+            return "Just now";
+        } else if (minutes < 60) {
+            return `${minutes} minute${minutes === 1 ? "" : "s"} ago`;
+        } else if (minutes < 1440) {
+            const hours = Math.floor(minutes / 60);
+            return `${hours} hour${hours === 1 ? "" : "s"} ago`;
+        } else {
+            const days = Math.floor(minutes / 1440);
+            return `${days} day${days === 1 ? "" : "s"} ago`;
+        }
+    };
+
+    const calculateDate = (currtime) => {
+        const currentDateInMilliseconds = Date.now();
+        const tweetDateInMilliseconds = new Date(currtime)?.getTime() || 0;
+
+        const timeDifferenceInMilliseconds =
+            currentDateInMilliseconds - tweetDateInMilliseconds;
+        const timeDifferenceInMinutes = Math.floor(
+            timeDifferenceInMilliseconds / (1000 * 60)
+        );
+
+        // console.log(`The difference between the creation date and now is ${daysDifference} days, ${hoursDifference} hours, ${minutesDifference} minutes, and ${secondsDifference} seconds.`);
+        return formatTimestamp(timeDifferenceInMinutes)
+    }
     return (
         <div id="toast-notification" className="w-full p-4 text-gray-900 relative bg-white  shadow  dark:text-gray-300" role="alert">
 
@@ -21,14 +49,14 @@ const FriendRequestComponents = ({ data }) => {
                     <div className="font-semibold text-gray-400 text-xs mb-1 ">@{data.username}</div>
                     {/* <div className="text-sm font-normal">{"Hello"}</div> */}
                     <div className='flex  gap-2'>
-                        <button className='bg-green-600 text-white px-2 py-1 rounded text-center text-xs ' >accept</button>
-                        <button className='bg-red-600 text-white px-2 py-1 rounded text-center text-xs ' >decline</button>
+                        <button className='bg-green-600 text-white px-2 py-1 rounded text-center text-xs ' onClick={() => handleAcceptFriendRequest(data._id)}>accept</button>
+                        <button className='bg-red-600 text-white px-2 py-1 rounded text-center text-xs ' onClick={() => handleRejectFriendRequest(id)}>decline</button>
                     </div>
                     {/* <span className="text-xs font-medium text-blue-600 dark:text-blue-500">a few seconds ago</span> */}
                 </div>
             </div>
             <span className='absolute text-xs text-gray-600 top-0 right-0 p-2 font-semibold'>
-                24m ago
+                {calculateDate(data.createdAt)}
             </span>
         </div>
     )

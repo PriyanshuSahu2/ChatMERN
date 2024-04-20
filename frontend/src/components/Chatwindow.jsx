@@ -2,17 +2,28 @@ import React, { useEffect, useState } from 'react'
 import { IoIosCall } from "react-icons/io";
 import { FaVideo } from "react-icons/fa";
 import { CiMenuKebab } from "react-icons/ci";
+import { useDispatch, useSelector } from 'react-redux';
+import { getMessages, sendMessages } from '../redux/userRedux';
 const Chatwindow = () => {
-    const [webSocket, setWebSocket] = useState(null)
+
+    const [inputMessage, setInputMessage] = useState("")
+
+
+
+    const currChatWindow = useSelector(state => state.appUI.currChat)
+    const messages = useSelector(state => state?.user?.messages?.[currChatWindow?._id]);
+
 
     const handleMessage = (e) => {
-        console.log(e)
+        const recipient = currChatWindow.members.filter((data) => data !== localStorage.getItem('id'))
+        dispatch(sendMessages({ message: inputMessage, sender: localStorage.getItem('id'), recipient: recipient[0], type: 'Text', conversationId: currChatWindow._id }))
     }
+    const dispatch = useDispatch()
     useEffect(() => {
-        // const ws = new WebSocket("ws://localhost:5000")
-        // setWebSocket(ws)
-        // ws.addEventListener('message', handleMessage)
-    }, [])
+        if (currChatWindow) {
+            dispatch(getMessages({ conversationId: currChatWindow }))
+        }
+    }, [currChatWindow, dispatch])
     return (
         <div className='w-full flex flex-col'>
             <section className='w-full flex justify-between items-center border-b  py-2 '>
@@ -37,8 +48,21 @@ const Chatwindow = () => {
                     </div>
                 </div>
             </section>
-            <section className='chat-area'>
-                <div className="chat-msg owner mt-1">
+            <section className='chat-area flex-grow overflow-y-scroll h-1'>
+                {currChatWindow !== undefined && messages && messages?.map(message => (
+                    <div className={`chat-msg mt-1 ${message.sender === localStorage.getItem('id') ? 'owner' : ''}`} key={message.id}>
+                        <div className="chat-msg-profile">
+                            <img className="chat-msg-img" src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/3364143/download+%281%29.png" alt="" />
+                            <div className="chat-msg-date">Message seen {message.createdAt}</div> {/* Adjust this part */}
+                        </div>
+                        <div className="chat-msg-content">
+                            <div className="chat-msg-text">{message.message}</div>
+                        </div>
+                    </div>
+                ))}
+
+
+                {/* <div className="chat-msg owner mt-1">
                     <div className="chat-msg-profile">
                         <img className="chat-msg-img" src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/3364143/download+%281%29.png" alt="" />
                         <div className="chat-msg-date">Message seen 1.22pm</div>
@@ -55,9 +79,8 @@ const Chatwindow = () => {
                     </div>
                     <div className="chat-msg-content">
                         <div className="chat-msg-text">Sit amet risus nullam eget felis eget. Dolor sed viverra ipsum😂😂😂</div>
-
                     </div>
-                </div>
+                </div> */}
             </section>
             <div className="chat-area-footer mt-auto">
                 <svg
@@ -114,7 +137,7 @@ const Chatwindow = () => {
                         d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"
                     />
                 </svg>
-                <input type="text" placeholder="Type something here..." />
+                <input type="text" placeholder="Type something here..." onChange={(e) => setInputMessage(e.target.value)} />
                 <svg
                     xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 24 24"
@@ -137,6 +160,7 @@ const Chatwindow = () => {
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     className="feather feather-thumbs-up"
+                    onClick={handleMessage}
                 >
                     <path
                         d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3zM7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3"

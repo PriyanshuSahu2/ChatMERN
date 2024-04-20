@@ -1,11 +1,25 @@
-import Message from "../../models/Message.mjs";
+import Message from "../../models/OneToOneMessage.mjs";
 
 export const addMessage = async (req, res) => {
   try {
-    const { conversationId, sender, message } = req.body;
-    const newMessage = new Message({ conversationId, sender, message });
+    console.log(req.body);
+    const { conversationId, sender, recipient, message, type, file } = req.body;
+    const newMessage = new Message({
+      conversationId,
+      sender,
+      message,
+      recipient,
+      type,
+      file,
+    });
     await newMessage.save();
-    res.status(200).json({ message: "Message Sent Successfully" });
+    res
+      .status(200)
+      .json({
+        message: "Message Sent Successfully",
+        data: newMessage,
+        status: "success",
+      });
   } catch (error) {
     console.error(error);
   }

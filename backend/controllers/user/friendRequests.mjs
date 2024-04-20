@@ -1,5 +1,6 @@
 import FriendRequest from "../../models/FreiendRequest.mjs";
 import User from "../../models/User.mjs";
+import { io } from "../../server.mjs";
 import { findUserByEmailOrUserName } from "../auth/login.mjs";
 
 export const sendFriendRequest = async (req, res, next) => {
@@ -27,12 +28,23 @@ export const getFriendRequest = async (req, res, next) => {
     console.log(userId);
     const friendRequests = await FriendRequest.find({
       recipient: userId,
-    }).populate("sender", "_id firstName lastName email username");
+    }).populate("sender", "_id firstName lastName email username createdAt");
     res.status(200).json({
       status: "success",
       data: friendRequests,
       message: "Request Fetched Successfully",
     });
+  } catch (error) {
+    next(error);
+  }
+};
+export const rejectFriendRequest = async (req, res, next) => {
+  try {
+    const friendRequestId = req.params.requestId;
+    await FriendRequest.findByIdAndDelete(friendRequestId);
+    res
+      .status(204)
+      .send({ status: "success", message: "Friend Request Rejected" });
   } catch (error) {
     next(error);
   }
@@ -59,16 +71,60 @@ export const acceptFriendRequest = async (req, res, next) => {
     next(error);
   }
 };
-export const SendFriendRequest = async (data, io) => {
+
+export const AcceptFriendRequest = async (data) => {
   try {
     const { sender, recipient } = data;
-    console.log(recipient);
+    const senderUser = await User.findByIdAndUpdate(
+      sender,
+      {
+        $push: { friends: recipient },
+      },
+      { new: true }
+    );
+    const recipientUser = await User.findByIdAndUpdate(
+      recipient,
+      {
+        $push: { friends: sender },
+      },
+      { new: true }
+    ).select("_id socketId username firstName lastName email");
+    // io.to(recipientUser.socketId).emit("new-friend-request", {
+    //   message: "New Friend Request Receieved",
+    // });
+    await FriendRequest.findOneAndDelete({ sender, recipient });
+    io.to(senderUser.socketId).emit("friend-request-accepted", {
+      message: "Friend Request Accepted",
+      data: recipientUser,
+    });
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+export const SendFriendRequest = async (data) => {
+  try {
+    const { sender, recipient } = data;
+
     const recipientAcc = await findUserByEmailOrUserName(recipient);
-    console.log(recipientAcc);
+    const existingRequest = await FriendRequest.findOne({
+      $or: [
+        { sender: sender, recipient: recipientAcc._id },
+        { sender: recipientAcc._id, recipient: sender },
+      ],
+    });
+
+    if (existingRequest) {
+      console.log(
+        "Friend request already exists between sender and recipient."
+      );
+      return;
+    }
     const friendRequst = new FriendRequest({
       sender: sender,
       recipient: recipientAcc._id,
     });
+
     const newFriendReq = await friendRequst.save();
     const userData = {
       id: recipientAcc._id,

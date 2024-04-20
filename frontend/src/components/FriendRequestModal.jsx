@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from 'react'
-import { userRequest } from '../requestMethod'
+
 import { connectionSocket, socket } from '../socket'
 import { toast } from 'react-toastify'
 import FriendRequestToast from './Toasts/FriendRequestToast'
+import { useDispatch } from 'react-redux'
+import { getFriendRequests } from '../redux/userRedux'
 
 const FriendRequestModal = ({ isOpen, closeModal }) => {
 
     const [recipient, setRecipient] = useState()
+    const dispatch = useDispatch()
     const handleSend = async (e) => {
         try {
             // const res = await userRequest.post("/user/send-friend-request", { recipient: recipient })
@@ -17,15 +20,10 @@ const FriendRequestModal = ({ isOpen, closeModal }) => {
         }
     }
 
-    useEffect(() => {
-        if (!socket) {
-            connectionSocket(localStorage.getItem('id'))
-        }
-        socket.on("new-friend-request", ({ data, message }) => {
-// console.log(data)
-            toast(<FriendRequestToast message={message} userData={data} />)
-        })
-    }, [])
+
+
+
+
     return (
         <>
             {isOpen && (<div className="relative z-10" aria-labelledby="modal-title" role="dialog" aria-modal="true">

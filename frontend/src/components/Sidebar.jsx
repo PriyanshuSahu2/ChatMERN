@@ -1,5 +1,5 @@
 import React from 'react';
-import { BiSolidMessageSquareDetail } from 'react-icons/bi';
+
 import { HiOutlineChatBubbleOvalLeftEllipsis } from 'react-icons/hi2';
 import { FaUserFriends } from 'react-icons/fa';
 
@@ -15,7 +15,6 @@ const Sidebar = ({setCurrentTab}) => {
             <div className="p-[6px] rounded-lg hover:bg-[#ffffff1b]">
                 <FaUserFriends color="white" size={24} onClick={()=>{setCurrentTab("friends")}}/>
             </div>
-
         </div>
     );
 };

@@ -20,7 +20,6 @@ const Login = () => {
             console.log("first")
             const res = await publicRequest.post(`${BASE_URL}/auth/login`, formData)
             localStorage.setItem("token",res.data.token)
-            console.log(res.data)
             localStorage.setItem("id",res.data.data._id)
             navigate("/", { replace: true })
         } catch (error) {

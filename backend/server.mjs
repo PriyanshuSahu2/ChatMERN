@@ -8,12 +8,12 @@ import { Server } from "socket.io";
 //Router
 import AuthRouter from "./routers/auth.mjs";
 import ConversationRouter from "./routers/conversation.mjs";
-import MessageRouter from "./routers/conversation.mjs";
+import MessageRouter from "./routers/message.mjs";
 import UserRouter from "./routers/user.mjs";
 
 //models
 import User from "./models/User.mjs";
-import { SendFriendRequest } from "./controllers/user/friendRequests.mjs";
+import { AcceptFriendRequest, SendFriendRequest } from "./controllers/user/friendRequests.mjs";
 
 dotenv.config();
 const app = express();
@@ -54,7 +54,7 @@ const server = app.listen(PORT, () => {
   );
 });
 
-const io = new Server(server, {
+export const io = new Server(server, {
   cors: {
     origin: "http://localhost:3000",
   },
@@ -63,7 +63,6 @@ const io = new Server(server, {
 io.on("connection", async (socket) => {
   const userId = socket.handshake.query.userId;
   const socketId = socket.id;
-  console.log(userId);
   console.log(`User connected: ${socketId}`);
   if (userId) {
     try {
@@ -72,8 +71,6 @@ io.on("connection", async (socket) => {
       // console.log(error);
     }
   }
-  socket.on("friend-request", async (data) => {
-    console.log(data)
-    await SendFriendRequest(data, io);
-  });
+  socket.on("friend-request", SendFriendRequest);
+  socket.on("accept-friend-request", AcceptFriendRequest);
 });
