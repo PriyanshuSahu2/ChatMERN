@@ -3,7 +3,7 @@ import FriendRequestComponents from './FriendRequestComponents'
 
 import { useDispatch, useSelector } from 'react-redux'
 import { socket } from '../socket'
-import { userRequest } from '../requestMethod'
+import { USER_ID } from '../requestMethod'
 import { rejectFriendRequest } from '../redux/userRedux'
 
 const FriendRequestsTab = () => {
@@ -11,7 +11,7 @@ const FriendRequestsTab = () => {
     const friendRequest = useSelector(state => state.user.friendRequests)
     const handleAcceptFriendRequest = async (sender) => {
         try {
-            const recipient = localStorage.getItem("id")
+            const recipient = USER_ID
             socket.emit("accept-friend-request", { sender: sender, recipient: recipient })
         } catch (error) {
 

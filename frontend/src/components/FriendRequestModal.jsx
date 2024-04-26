@@ -1,20 +1,19 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 
-import { connectionSocket, socket } from '../socket'
-import { toast } from 'react-toastify'
-import FriendRequestToast from './Toasts/FriendRequestToast'
-import { useDispatch } from 'react-redux'
-import { getFriendRequests } from '../redux/userRedux'
+import { socket } from '../socket'
+
+
+import { USER_ID } from '../requestMethod'
 
 const FriendRequestModal = ({ isOpen, closeModal }) => {
 
     const [recipient, setRecipient] = useState()
-    const dispatch = useDispatch()
+
     const handleSend = async (e) => {
         try {
             // const res = await userRequest.post("/user/send-friend-request", { recipient: recipient })
             // console.log(res)
-            socket.emit("friend-request", { sender: localStorage.getItem('id'), recipient: recipient })
+            socket.emit("friend-request", { sender: USER_ID, recipient: recipient })
         } catch (error) {
             console.error(error)
         }

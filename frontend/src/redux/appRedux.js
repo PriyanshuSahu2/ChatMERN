@@ -6,6 +6,7 @@ const appSlice = createSlice({
     currChat: null,
     loading: false,
     error: null,
+    newMessage: false,
   },
   reducers: {
     setCurrentChat(state, action) {
@@ -18,6 +19,12 @@ const appSlice = createSlice({
     },
     setError(state, action) {
       state.error = action.payload;
+    },
+    messageArrived(state, action) {
+      state.newMessage = true;
+    },
+    messageDeactivate(state, action) {
+      state.newMessage = false;
     },
   },
 });

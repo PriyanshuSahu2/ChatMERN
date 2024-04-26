@@ -14,6 +14,7 @@ import UserRouter from "./routers/user.mjs";
 //models
 import User from "./models/User.mjs";
 import { AcceptFriendRequest, SendFriendRequest } from "./controllers/user/friendRequests.mjs";
+import { sendMessage } from "./controllers/conversation/message.mjs";
 
 dotenv.config();
 const app = express();
@@ -73,4 +74,5 @@ io.on("connection", async (socket) => {
   }
   socket.on("friend-request", SendFriendRequest);
   socket.on("accept-friend-request", AcceptFriendRequest);
+  socket.on('send-message',sendMessage)
 });

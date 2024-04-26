@@ -40,6 +40,9 @@
       rgba(255, 255, 255, 0) 100%
     );
   }
+
+
+
   .chat-msg-img {
     height: 40px;
     width: 40px;
@@ -197,7 +200,6 @@
 
   .no-scrollbar::-webkit-scrollbar {
     display: none;
-    
   }
 
   /* Hide scrollbar for IE, Edge and Firefox */

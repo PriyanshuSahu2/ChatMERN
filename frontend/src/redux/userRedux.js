@@ -1,12 +1,12 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { userRequest } from "../requestMethod";
+import { USER_ID, userRequest } from "../requestMethod";
 
 export const getFriendRequests = createAsyncThunk(
   "getFriendRequest",
   async (data, { rejectWithValue }) => {
     try {
       const res = await userRequest.get(
-        `/user/get-friend-requests/${localStorage.getItem("id")}`
+        `/user/get-friend-requests/${USER_ID}`
       );
 
       return res.data.data;
@@ -21,7 +21,7 @@ export const rejectFriendRequest = createAsyncThunk(
   async (data, { rejectWithValue }) => {
     try {
       await userRequest.delete(
-        `/user/reject-friend-request/${localStorage.getItem("id")}/${
+        `/user/reject-friend-request/${USER_ID}/${
           data.friendRequestId
         }`
       );
@@ -38,7 +38,7 @@ export const getConversations = createAsyncThunk(
   async (data, { rejectWithValue }) => {
     try {
       const res = await userRequest.get(
-        `/conversation/${localStorage.getItem("id")}`
+        `/conversation/${USER_ID}`
       );
       return res.data;
     } catch (error) {
@@ -52,7 +52,7 @@ export const getMessages = createAsyncThunk(
   async (data, { rejectWithValue }) => {
     try {
       const res = await userRequest.get(
-        `/message/${localStorage.getItem("id")}/${data.conversationId._id}`
+        `/message/${USER_ID}/${data.conversationId._id}`
       );
 
       return { conversationId: data.conversationId._id, messages: res.data };
@@ -66,18 +66,14 @@ export const sendMessages = createAsyncThunk(
   "sendMessages",
   async (data, { rejectWithValue }) => {
     try {
-      const res = await userRequest.post(
-        `/message/${localStorage.getItem("id")}`,
-        data
-      );
-      console.log(res.data.data);
-      return res.data.data;
+      return data;
     } catch (error) {
       console.error(error);
       rejectWithValue(error);
     }
   }
 );
+
 const userSlice = createSlice({
   name: "User",
   initialState: {
@@ -87,6 +83,17 @@ const userSlice = createSlice({
     messages: {},
     loading: false,
     error: null,
+  },
+  reducers: {
+    getCurrMessages(state, action) {
+      state.loading = false;
+      const { conversationId } = action.payload;
+      state.messages[conversationId] = [
+        ...state.messages[conversationId],
+        action.payload,
+      ];
+      state.error = null;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -151,15 +158,17 @@ const userSlice = createSlice({
       })
       .addCase(sendMessages.fulfilled, (state, action) => {
         const { conversationId } = action.payload;
-        console.log(action.payload)
+        console.log(action.payload);
         if (conversationId) {
           if (!state.messages[conversationId]) {
             state.messages[conversationId] = []; // Initialize as an empty array if not exists
           }
-          state.messages[conversationId] = [...state.messages[conversationId], action.payload];
-
+          state.messages[conversationId] = [
+            ...state.messages[conversationId],
+            action.payload,
+          ];
         }
-        console.log(state.messages)
+        console.log(state.messages);
         state.error = null;
       })
 
@@ -170,6 +179,6 @@ const userSlice = createSlice({
   },
 });
 
-export const { getFriendRequest } = userSlice.actions;
+export const { getCurrMessages } = userSlice.actions;
 
 export default userSlice.reducer;

@@ -1,17 +1,19 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import SideChatbar from '../components/SideChatbar'
 import Chatwindow from '../components/Chatwindow'
 import { connectionSocket, socket } from '../socket'
 import Sidebar from '../components/Sidebar'
 import FriendRequestsTab from '../components/FriendRequestsTab'
 import { useDispatch } from 'react-redux'
-import { getConversations, getFriendRequests } from '../redux/userRedux'
+import { getConversations, getCurrMessages, getFriendRequests } from '../redux/userRedux'
 import FriendRequestToast from '../components/Toasts/FriendRequestToast'
 import { toast } from 'react-toastify'
+import { scrollToLast } from '../util'
+import { USER_ID } from '../requestMethod'
 
 const Home = () => {
-    if (!socket && localStorage.getItem("id")) {
-        connectionSocket(localStorage.getItem("id"));
+    if (!socket && USER_ID) {
+        connectionSocket(USER_ID);
     }
     const [currentTab, setCurrentTab] = useState("conversation") //* requests
     const dispatch = useDispatch()
@@ -20,14 +22,17 @@ const Home = () => {
         friends: <FriendRequestsTab />,
     };
     useEffect(() => {
-
         dispatch(getFriendRequests())
         dispatch(getConversations())
     }, [dispatch])
 
+
+    const scrollRef = useRef(null);
+
+
     useEffect(() => {
         if (!socket) {
-            connectionSocket(localStorage.getItem('id'))
+            connectionSocket(USER_ID)
         }
         socket.on("new-friend-request", ({ data, message }) => {
             console.log("first")
@@ -37,12 +42,17 @@ const Home = () => {
         socket.on("friend-request-accepted", ({ data, message }) => {
             toast(<FriendRequestToast message={message} userData={data} />)
         })
+        socket.on('new-message', (data) => {
+            dispatch(getCurrMessages(data))
+            scrollToLast(scrollRef)
+        })
     }, [dispatch])
+
     return (
         <div className="flex">
             <Sidebar setCurrentTab={setCurrentTab} />
             {tabComponents[currentTab]}
-            <Chatwindow />
+            <Chatwindow scrollRef={scrollRef} />
         </div>
     );
 

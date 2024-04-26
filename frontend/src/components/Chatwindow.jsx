@@ -4,25 +4,36 @@ import { FaVideo } from "react-icons/fa";
 import { CiMenuKebab } from "react-icons/ci";
 import { useDispatch, useSelector } from 'react-redux';
 import { getMessages, sendMessages } from '../redux/userRedux';
-const Chatwindow = () => {
+import { connectionSocket, socket } from '../socket';
+
+import { scrollToLast } from '../util';
+import { USER_ID } from '../requestMethod';
+const Chatwindow = ({ scrollRef }) => {
 
     const [inputMessage, setInputMessage] = useState("")
 
 
-
     const currChatWindow = useSelector(state => state.appUI.currChat)
     const messages = useSelector(state => state?.user?.messages?.[currChatWindow?._id]);
+    const dispatch = useDispatch()
 
 
     const handleMessage = (e) => {
-        const recipient = currChatWindow.members.filter((data) => data !== localStorage.getItem('id'))
-        dispatch(sendMessages({ message: inputMessage, sender: localStorage.getItem('id'), recipient: recipient[0], type: 'Text', conversationId: currChatWindow._id }))
+        const recipient = currChatWindow.members.filter((data) => data._id !== USER_ID)
+
+        if (connectionSocket) {
+            socket.emit('send-message', { message: inputMessage, sender: USER_ID, recipient: recipient[0], type: 'Text', conversationId: currChatWindow._id })
+        }
+        dispatch(sendMessages({ message: inputMessage, sender: USER_ID, recipient: recipient[0], type: 'Text', conversationId: currChatWindow._id }))
+        scrollToLast(scrollRef)
     }
-    const dispatch = useDispatch()
+
+
     useEffect(() => {
         if (currChatWindow) {
             dispatch(getMessages({ conversationId: currChatWindow }))
         }
+
     }, [currChatWindow, dispatch])
     return (
         <div className='w-full flex flex-col'>
@@ -48,9 +59,9 @@ const Chatwindow = () => {
                     </div>
                 </div>
             </section>
-            <section className='chat-area flex-grow overflow-y-scroll h-1'>
+            <section className='chat-area flex-grow overflow-y-scroll h-1 transition-all' ref={scrollRef}>
                 {currChatWindow !== undefined && messages && messages?.map(message => (
-                    <div className={`chat-msg mt-1 ${message.sender === localStorage.getItem('id') ? 'owner' : ''}`} key={message.id}>
+                    <div key={message?.id} className={`chat-msg mt-1 ${message.sender === USER_ID ? 'owner' : ''}`} >
                         <div className="chat-msg-profile">
                             <img className="chat-msg-img" src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/3364143/download+%281%29.png" alt="" />
                             <div className="chat-msg-date">Message seen {message.createdAt}</div> {/* Adjust this part */}
