@@ -10,6 +10,7 @@ export const Register = async (req, res, next) => {
         .status(404)
         .json({ error: true, message: "Username Already Exist" });
     }
+    const mob = Math.random() + 1010000;
     const hashedPassword = await bcrypt.hash(password, 10);
     user = await new User({
       firstName: firstName,
@@ -17,7 +18,7 @@ export const Register = async (req, res, next) => {
       username: username,
       email: email,
       password: hashedPassword,
-      mobileNumber: mobileNumber,
+      mobileNumber: mob,
     }).save();
     user.password = undefined;
     return res.status(201).json({

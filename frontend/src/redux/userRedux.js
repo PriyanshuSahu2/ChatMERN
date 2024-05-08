@@ -5,9 +5,7 @@ export const getFriendRequests = createAsyncThunk(
   "getFriendRequest",
   async (data, { rejectWithValue }) => {
     try {
-      const res = await userRequest.get(
-        `/user/get-friend-requests/${USER_ID}`
-      );
+      const res = await userRequest.get(`/user/get-friend-requests/${USER_ID}`);
 
       return res.data.data;
     } catch (error) {
@@ -21,9 +19,7 @@ export const rejectFriendRequest = createAsyncThunk(
   async (data, { rejectWithValue }) => {
     try {
       await userRequest.delete(
-        `/user/reject-friend-request/${USER_ID}/${
-          data.friendRequestId
-        }`
+        `/user/reject-friend-request/${USER_ID}/${data.friendRequestId}`
       );
 
       return data.friendRequestId;
@@ -37,9 +33,7 @@ export const getConversations = createAsyncThunk(
   "getConversation",
   async (data, { rejectWithValue }) => {
     try {
-      const res = await userRequest.get(
-        `/conversation/${USER_ID}`
-      );
+      const res = await userRequest.get(`/conversation/${USER_ID}`);
       return res.data;
     } catch (error) {
       console.error(error);
@@ -84,17 +78,7 @@ const userSlice = createSlice({
     loading: false,
     error: null,
   },
-  reducers: {
-    getCurrMessages(state, action) {
-      state.loading = false;
-      const { conversationId } = action.payload;
-      state.messages[conversationId] = [
-        ...state.messages[conversationId],
-        action.payload,
-      ];
-      state.error = null;
-    },
-  },
+  reducers: {},
   extraReducers: (builder) => {
     builder
       .addCase(getFriendRequests.pending, (state, action) => {
@@ -178,7 +162,5 @@ const userSlice = createSlice({
       });
   },
 });
-
-export const { getCurrMessages } = userSlice.actions;
 
 export default userSlice.reducer;

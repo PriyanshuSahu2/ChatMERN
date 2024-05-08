@@ -1,3 +1,4 @@
+import Conversation from "../../models/Conversation.mjs";
 import FriendRequest from "../../models/FreiendRequest.mjs";
 import User from "../../models/User.mjs";
 import { io } from "../../server.mjs";
@@ -93,6 +94,12 @@ export const AcceptFriendRequest = async (data) => {
     //   message: "New Friend Request Receieved",
     // });
     await FriendRequest.findOneAndDelete({ sender, recipient });
+
+    const newConversation = new Conversation({
+      members: [sender, recipient],
+    });
+    const savedConversation = await newConversation.save();
+
     io.to(senderUser.socketId).emit("friend-request-accepted", {
       message: "Friend Request Accepted",
       data: recipientUser,

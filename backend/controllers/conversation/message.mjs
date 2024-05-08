@@ -28,9 +28,16 @@ export const addMessage = async (req, res) => {
 export const getMessages = async (req, res) => {
   try {
     const conversationId = req.params.conversationId;
-    const messages = await Message.find({
-      conversationId: conversationId,
-    });
+    const messages = await Message.find({ conversationId: conversationId })
+      .populate({
+        path: "sender",
+        select: "_id profile firstName lastName",
+      })
+      .populate({
+        path: "recipient",
+        select: "_id profile firstName lastName",
+      });
+
     res.status(200).json(messages);
   } catch (error) {
     console.log(error);
@@ -39,7 +46,7 @@ export const getMessages = async (req, res) => {
 
 export const sendMessage = async (data) => {
   try {
-    console.log(data)
+    
     const { conversationId, sender, recipient, message, type, file } = data;
     const newMessage = new Message({
       conversationId,
@@ -50,10 +57,9 @@ export const sendMessage = async (data) => {
       file,
     });
     const savedMessage = await newMessage.save();
+    console.log(savedMessage);
     const recipientSocket = await User.findById(recipient);
-    console.log(recipientSocket)
-    io.to(recipientSocket.socketId).emit("new-message", savedMessage)
-    
+    io.to(recipientSocket.socketId).emit("new-message", savedMessage);
   } catch (error) {
     console.error(error);
   }
