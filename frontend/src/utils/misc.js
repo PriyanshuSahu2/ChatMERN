@@ -1,7 +1,7 @@
 import { USER_ID } from "../requestMethod";
 
 export const getFullName = (data) => {
-  const user = data.members.filter((member) => member._id !== USER_ID)[0];
+  const user = data
 
   return `${user.firstName} ${user.lastName}`;
 };

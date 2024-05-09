@@ -24,8 +24,8 @@ const ChatFooter = ({ setInputMessage, handleMessage, onEmojiClick, inputMessage
         setOpenEmoji(!openEmoji)
     }
     return (
-        <div className="chat-area-footer mt-auto relative">
-            <svg
+        <form className="chat-area-footer mt-auto relative flex items-center gap-2" onSubmit={handleMessage}>
+            {/* <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 24 24"
                 fill="none"
@@ -51,7 +51,7 @@ const ChatFooter = ({ setInputMessage, handleMessage, onEmojiClick, inputMessage
                 <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
                 <circle cx="8.5" cy="8.5" r="1.5" />
                 <path d="M21 15l-5-5L5 21" />
-            </svg>
+            </svg> */}
             {/* <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 24 24"
@@ -65,25 +65,6 @@ const ChatFooter = ({ setInputMessage, handleMessage, onEmojiClick, inputMessage
                 <circle cx="12" cy="12" r="10" />
                 <path d="M12 8v8M8 12h8" />
             </svg> */}
-            <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="feather feather-paperclip"
-            >
-                <path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48" />
-            </svg>
-            <input
-                type="text"
-                placeholder="Type something here..."
-                onChange={(e) => setInputMessage(e.target.value)}
-                value={inputMessage}
-            />
-            <VscSend size={32} />
             <div onClick={handleOpenEmoji} ref={emojiRef}>
 
                 <svg
@@ -112,13 +93,33 @@ const ChatFooter = ({ setInputMessage, handleMessage, onEmojiClick, inputMessage
                 strokeWidth="1.5"
                 strokeLinecap="round"
                 strokeLinejoin="round"
+                className="feather feather-paperclip"
+            >
+                <path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48" />
+            </svg>
+            <input
+                type="text"
+                placeholder="Type something here..."
+                onChange={(e) => setInputMessage(e.target.value)}
+                value={inputMessage}
+            />
+            <VscSend size={32} className='mt-1'  />
+
+            <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
                 className="feather feather-thumbs-up"
-                onClick={handleMessage}
+                
 
             >
                 <path d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3zM7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3" />
             </svg>
-        </div>
+        </form>
     )
 }
 

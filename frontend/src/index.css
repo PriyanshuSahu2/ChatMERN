@@ -137,9 +137,6 @@
     color: var(--settings-icon-hover);
   }
 
-  .chat-area-footer svg + svg {
-    margin-left: 12px;
-  }
 
   .chat-area-footer input {
     border: none;
