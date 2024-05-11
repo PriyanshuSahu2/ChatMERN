@@ -46,10 +46,10 @@ export const getMessages = createAsyncThunk(
   async (data, { rejectWithValue }) => {
     try {
       const res = await userRequest.get(
-        `/message/${USER_ID}/${data.conversationId._id}`
+        `/message/${USER_ID}/${data.conversationId}`
       );
 
-      return { conversationId: data.conversationId._id, messages: res.data };
+      return { conversationId: data.conversationId, messages: res.data };
     } catch (error) {
       console.error(error);
       rejectWithValue(error);

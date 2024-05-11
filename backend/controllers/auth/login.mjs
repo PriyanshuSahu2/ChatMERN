@@ -5,7 +5,6 @@ export const login = async (req, res, next) => {
   try {
     const { usernameOrEmail, password } = req.body;
     const userInDB = await findUserByEmailOrUserName(usernameOrEmail);
-console.log(userInDB)
     if (!userInDB) {
       return res.status(401).json({ message: "Authentication failed" });
     }

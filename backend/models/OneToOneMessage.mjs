@@ -17,16 +17,20 @@ const MessageSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
-    type:{
-      type:String,
-      enum:["Text","Document","Media"]
+    type: {
+      type: String,
+      enum: ["Text", "Document", "Media"],
     },
     message: {
       type: String,
     },
-    file:{
-      type:String, 
-    }
+    file: {
+      type: String,
+    },
+    status: {
+      type: String,
+      enum: ["Sent", "Recieved", "Seen"],
+    },
   },
   { timestamps: true }
 );

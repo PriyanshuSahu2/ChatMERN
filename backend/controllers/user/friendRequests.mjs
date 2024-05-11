@@ -26,7 +26,7 @@ export const sendFriendRequest = async (req, res, next) => {
 export const getFriendRequest = async (req, res, next) => {
   try {
     const userId = req.user.id;
-    console.log(userId);
+  
     const friendRequests = await FriendRequest.find({
       recipient: userId,
     }).populate("sender", "_id firstName lastName email username createdAt");

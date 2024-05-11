@@ -4,8 +4,10 @@ import { io } from "../../server.mjs";
 
 export const addMessage = async (req, res) => {
   try {
-    console.log(req.body);
     const { conversationId, sender, recipient, message, type, file } = req.body;
+    if(!conversationId){
+      throw new Error("SJSJJS")
+    }
     const newMessage = new Message({
       conversationId,
       sender,
@@ -40,14 +42,14 @@ export const getMessages = async (req, res) => {
 
     res.status(200).json(messages);
   } catch (error) {
-    console.log(error);
+    console.error(error);
   }
 };
 
 export const sendMessage = async (data) => {
   try {
-    
     const { conversationId, sender, recipient, message, type, file } = data;
+    console.log(`ConersationId:${conversationId}`);
     const newMessage = new Message({
       conversationId,
       sender,
@@ -59,7 +61,7 @@ export const sendMessage = async (data) => {
     const savedMessage = await newMessage.save();
     console.log(savedMessage);
     const recipientSocket = await User.findById(recipient);
-    io.to(recipientSocket.socketId).emit("new-message", savedMessage);
+     io.to(recipientSocket.socketId).emit("new-message", savedMessage);
   } catch (error) {
     console.error(error);
   }

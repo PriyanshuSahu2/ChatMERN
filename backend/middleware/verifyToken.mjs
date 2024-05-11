@@ -9,12 +9,12 @@ export const verifyToken = (req, res, next) => {
     
     jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
       if (err) {
-        console.log(err)
+        console.error(err)
         return res.status(403).json("Not valid Token");
       }
-      console.log(user)
+    
       req.user = user;
-      console.log(user);
+
       next();
     });
   } else {
@@ -36,7 +36,7 @@ export const verifyTokenAndAdmin = (req, res, next) => {
     if (req.user.isAdmin) {
       next();
     } else {
-      console.log(req.user);
+ 
       res.status(403).json({ message: "You Are Not Allowed" });
     }
   });

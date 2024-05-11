@@ -25,6 +25,7 @@ const Chatwindow = ({ scrollRef }) => {
 
   const handleMessage = (e) => {
     e.preventDefault()
+    console.log(currChatWindow)
     if (connectionSocket) {
       socket.emit("send-message", {
         message: inputMessage,
@@ -32,6 +33,7 @@ const Chatwindow = ({ scrollRef }) => {
         recipient: recipient,
         type: "Text",
         conversationId: currChatWindow._id,
+        status:'sent'
       });
     }
     dispatch(
@@ -42,7 +44,6 @@ const Chatwindow = ({ scrollRef }) => {
         type: "Text",
         conversationId: currChatWindow._id,
         createdAt: Date.now(),
-
       })
     );
     setInputMessage("")
@@ -55,7 +56,7 @@ const Chatwindow = ({ scrollRef }) => {
 
   useEffect(() => {
     if (currChatWindow) {
-      dispatch(getMessages({ conversationId: currChatWindow }));
+      dispatch(getMessages({ conversationId: currChatWindow._id}));
     }
   }, [currChatWindow, dispatch]);
 
@@ -100,3 +101,6 @@ const Chatwindow = ({ scrollRef }) => {
 };
 
 export default Chatwindow;
+
+
+
