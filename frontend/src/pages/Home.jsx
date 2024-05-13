@@ -5,7 +5,7 @@ import { connectionSocket, socket } from '../socket'
 import Sidebar from '../components/Sidebar'
 import FriendRequestsTab from '../components/FriendRequestsTab'
 import { useDispatch } from 'react-redux'
-import { getConversations, getCurrMessages, getFriendRequests, getMessages } from '../redux/userRedux'
+import { ADD_MESSAGE, getConversations, getCurrMessages, getFriendRequests, getMessages } from '../redux/userRedux'
 import FriendRequestToast from '../components/Toasts/FriendRequestToast'
 import { toast } from 'react-toastify'
 import { scrollToLast } from '../util'
@@ -35,7 +35,7 @@ const Home = () => {
             connectionSocket(USER_ID)
         }
         socket.on("new-friend-request", ({ data, message }) => {
-            console.log("first")
+            // console.log("first")
             dispatch(getFriendRequests())
             toast(<FriendRequestToast message={message} userData={data} />)
         })
@@ -43,8 +43,9 @@ const Home = () => {
             toast(<FriendRequestToast message={message} userData={data} />)
         })
         socket.on('new-message', (data) => {
-            console.log(data)
-            dispatch(getMessages(data))
+            // console.log(data)
+            dispatch(ADD_MESSAGE(data))
+
             scrollToLast(scrollRef)
         })
     }, [dispatch])

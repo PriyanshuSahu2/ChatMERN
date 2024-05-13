@@ -31,7 +31,7 @@ const SideChatbar = () => {
 
 
   return (
-    <div className="w-96 bg-white h-screen border-r">
+    <div className="w-[400px] bg-white h-screen border-r">
       <FriendRequestModal
         openModal={openModal}
         closeModal={closeModal}
@@ -48,7 +48,7 @@ const SideChatbar = () => {
           <IoAdd size={20} color="white" />
         </div>
       </section>
-      <section className="flex flex-col px-4 ">
+      <section className="flex flex-col">
         {conversation?.map((data) => {
           return (
             <UserChatProfile handleCurrChat={handleCurrChat} data={data} />

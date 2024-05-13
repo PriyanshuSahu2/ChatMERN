@@ -9,12 +9,13 @@ import { USER_ID } from "../../requestMethod";
 import Message from "./Message";
 import ChatFooter from "./ChatFooter";
 import ChatHeader from "./ChatHeader";
+import { generateId } from "../../utils/misc";
 const Chatwindow = ({ scrollRef }) => {
   const [inputMessage, setInputMessage] = useState("");
 
   const dispatch = useDispatch();
   const currChatWindow = useSelector((state) => state.appUI.currChat);
-  const messages = useSelector(
+  let messages = useSelector(
     (state) => state?.user?.messages?.[currChatWindow?._id]
   );
   const recipient = useMemo(() => {
@@ -25,27 +26,16 @@ const Chatwindow = ({ scrollRef }) => {
 
   const handleMessage = (e) => {
     e.preventDefault()
-    console.log(currChatWindow)
-    if (connectionSocket) {
-      socket.emit("send-message", {
-        message: inputMessage,
-        sender: { _id: USER_ID },
-        recipient: recipient,
-        type: "Text",
-        conversationId: currChatWindow._id,
-        status:'sent'
-      });
-    }
-    dispatch(
-      sendMessages({
-        message: inputMessage,
-        sender: { _id: USER_ID },
-        recipient: recipient,
-        type: "Text",
-        conversationId: currChatWindow._id,
-        createdAt: Date.now(),
-      })
-    );
+    const sentMessage = {
+      _id: generateId(),
+      message: inputMessage,
+      sender: { _id: USER_ID },
+      recipient: recipient,
+      type: "Text",
+      conversationId: currChatWindow._id,
+      status: 'progress'
+    };
+    dispatch(sendMessages(sentMessage))
     setInputMessage("")
     scrollToLast(scrollRef);
   };
@@ -56,7 +46,8 @@ const Chatwindow = ({ scrollRef }) => {
 
   useEffect(() => {
     if (currChatWindow) {
-      dispatch(getMessages({ conversationId: currChatWindow._id}));
+      dispatch(getMessages({ conversationId: currChatWindow._id }));
+
     }
   }, [currChatWindow, dispatch]);
 
@@ -68,32 +59,20 @@ const Chatwindow = ({ scrollRef }) => {
         className="chat-area flex-grow overflow-y-scroll h-1 transition-all"
         ref={scrollRef}
       >
-        {currChatWindow !== undefined
-          &&
-          messages &&
-          messages?.map((message) => (
-            <Message message={message} />
-          ))}
+        {currChatWindow !== undefined && messages && Object.keys(messages).map((key) => (
+          <div key={key}>
+            <div className="flex items-center gap-8 px-4 text-gray-500">
+              <div className="border h-[1px]"></div>
+              <span>{key}</span>
+              <div className="border h-[1px]"></div>
+            </div>
+            {messages[key].map((message) => (
+              <Message message={message} />
+            ))}
+          </div>
+        ))}
 
-        {/* <div className="chat-msg owner mt-1">
-                    <div className="chat-msg-profile">
-                        <img className="chat-msg-img" src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/3364143/download+%281%29.png" alt="" />
-                        <div className="chat-msg-date">Message seen 1.22pm</div>
-                    </div>
-                    <div className="chat-msg-content">
-                        <div className="chat-msg-text">Sit amet risus nullam eget felis eget. Dolor sed viverra ipsum😂😂😂</div>
 
-                    </div>
-                </div>
-                <div className="chat-msg mt-1">
-                    <div className="chat-msg-profile">
-                        <img className="chat-msg-img" src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/3364143/download+%281%29.png" alt="" />
-                        <div className="chat-msg-date">Message seen 1.22pm</div>
-                    </div>
-                    <div className="chat-msg-content">
-                        <div className="chat-msg-text">Sit amet risus nullam eget felis eget. Dolor sed viverra ipsum😂😂😂</div>
-                    </div>
-                </div> */}
       </section>
       <ChatFooter handleMessage={handleMessage} inputMessage={inputMessage} setInputMessage={setInputMessage} onEmojiClick={onEmojiClick} />
     </div>
@@ -104,3 +83,26 @@ export default Chatwindow;
 
 
 
+
+
+
+
+/* <div className="chat-msg owner mt-1">
+            <div className="chat-msg-profile">
+                <img className="chat-msg-img" src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/3364143/download+%281%29.png" alt="" />
+                <div className="chat-msg-date">Message seen 1.22pm</div>
+            </div>
+            <div className="chat-msg-content">
+                <div className="chat-msg-text">Sit amet risus nullam eget felis eget. Dolor sed viverra ipsum😂😂😂</div>
+
+            </div>
+        </div>
+        <div className="chat-msg mt-1">
+            <div className="chat-msg-profile">
+                <img className="chat-msg-img" src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/3364143/download+%281%29.png" alt="" />
+                <div className="chat-msg-date">Message seen 1.22pm</div>
+            </div>
+            <div className="chat-msg-content">
+                <div className="chat-msg-text">Sit amet risus nullam eget felis eget. Dolor sed viverra ipsum😂😂😂</div>
+            </div>
+        </div> */

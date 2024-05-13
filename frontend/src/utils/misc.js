@@ -2,7 +2,6 @@ import { USER_ID } from "../requestMethod";
 
 export const getFullName = (data) => {
   const user = data
-
   return `${user.firstName} ${user.lastName}`;
 };
 
@@ -30,12 +29,17 @@ export const convertTimestamps = (time) => {
     return "a moment ago";
   } else if (secondsDiff < hour) {
     const minutes = Math.floor(secondsDiff / minute);
-    return minutes === 1 ? "a minute ago" : `${minutes} minutes ago`;
+    return minutes === 1 ? "a minute ago" : `${minutes}m`;
   } else if (secondsDiff < day) {
     const hours = Math.floor(secondsDiff / hour);
-    return hours === 1 ? "an hour ago" : `${hours} hours ago`;
+    return hours === 1 ? "an hour ago" : `${hours}h`;
   } else {
     const days = Math.floor(secondsDiff / day);
-    return days === 1 ? "a day ago" : `${days} days ago`;
+    return days === 1 ? "a day ago" : `${days}d`;
   }
 };
+
+export const generateId = () => {
+  return Date.now().toString(36) + Math.random().toString(36).substr(2);
+};
+

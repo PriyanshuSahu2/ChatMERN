@@ -34,6 +34,7 @@ export const getConversations = createAsyncThunk(
   async (data, { rejectWithValue }) => {
     try {
       const res = await userRequest.get(`/conversation/${USER_ID}`);
+
       return res.data;
     } catch (error) {
       console.error(error);
@@ -60,7 +61,8 @@ export const sendMessages = createAsyncThunk(
   "sendMessages",
   async (data, { rejectWithValue }) => {
     try {
-      return data;
+      const res = await userRequest.post(`/message/${USER_ID}`, data);
+      return res.data.data;
     } catch (error) {
       console.error(error);
       rejectWithValue(error);
@@ -78,7 +80,29 @@ const userSlice = createSlice({
     loading: false,
     error: null,
   },
-  reducers: {},
+  reducers: {
+    ADD_MESSAGE(state, action) {
+      const { conversationId } = action.payload;
+    
+      if (conversationId) {
+        if (!state.messages[conversationId]) {
+          state.messages[conversationId] = []; // Initialize as an empty array if not exists
+        }
+        state.messages[conversationId] = [
+          ...state.messages[conversationId],
+          action.payload,
+        ];
+        state.conversations = state.conversations.map((data) => {
+          if (data._id === conversationId) {
+            data.lastmessage = action.payload;
+          }
+          return data;
+        });
+      }
+      state.loading = false;
+      state.error = null;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(getFriendRequests.pending, (state, action) => {
@@ -137,7 +161,7 @@ const userSlice = createSlice({
         state.error = action.error;
       });
     builder
-      .addCase(sendMessages.pending, (state) => {
+      .addCase(sendMessages.pending, (state, action) => {
         state.loading = true;
       })
       .addCase(sendMessages.fulfilled, (state, action) => {
@@ -151,11 +175,16 @@ const userSlice = createSlice({
             ...state.messages[conversationId],
             action.payload,
           ];
+          state.conversations = state.conversations.map((data) => {
+            if (data._id === conversationId) {
+              data.lastmessage = action.payload;
+            }
+            return data;
+          });
         }
-        console.log(state.messages);
+        state.loading = false;
         state.error = null;
       })
-
       .addCase(sendMessages.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error;
@@ -163,4 +192,5 @@ const userSlice = createSlice({
   },
 });
 
+export const { ADD_MESSAGE } = userSlice.actions;
 export default userSlice.reducer;

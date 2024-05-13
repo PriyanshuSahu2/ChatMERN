@@ -1,4 +1,5 @@
 import Conversation from "../../models/Conversation.mjs";
+import QueueMessage from "../../models/QueueMessage.mjs";
 
 export const addConversation = async (req, res, next) => {
   try {
@@ -15,11 +16,22 @@ export const addConversation = async (req, res, next) => {
 export const getConversation = async (req, res) => {
   try {
     const userId = req.params.userId;
+
     const conversation = await Conversation.find({
       members: { $in: [userId] },
-    }).populate('members');
+    }).populate("members");
+
+    let queuedMessages = await QueueMessage.find({ recipient: userId });
+
+  
+    conversation.unread = queuedMessages.length;
+    if (conversation.length != 0) {
+      conversation.lastmessage = queuedMessages[conversation.length - 1];
+    }
+   
+
     res.status(200).json(conversation);
   } catch (error) {
-    console.log(error);
+    console.error(error);
   }
 };

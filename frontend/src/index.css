@@ -69,7 +69,7 @@
 
   .chat-msg {
     display: flex;
-    padding: 0 20px 45px;
+    padding: 0 20px 40px;
   }
 
   .chat-msg-content {
@@ -156,6 +156,7 @@
     display: flex;
     flex-direction: column;
     overflow: auto;
+    padding-bottom: 8px;
   }
 
   .chat-area-header {
@@ -204,4 +205,19 @@
     -ms-overflow-style: none; /* IE and Edge */
     scrollbar-width: none; /* Firefox */
   }
+
+  .message-group {
+    display: flex;
+    align-items: center;
+  }
+  
+  .border {
+    flex: 1;
+    border-top: 1px solid #000; /* Adjust as needed */
+  }
+  
+  .message-group-key {
+    margin: 0 10px; /* Adjust spacing as needed */
+  }
+  
 }

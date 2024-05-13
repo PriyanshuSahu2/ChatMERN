@@ -11,7 +11,7 @@ export const scrollToLast = (scrollRef) => {
         top: maxScrollTop,
         behavior: "smooth",
       });
-    }, 100); // Adjust the delay as needed
+    }, 200); // Adjust the delay as needed
   }
 };
 

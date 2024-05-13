@@ -13,8 +13,12 @@ import UserRouter from "./routers/user.mjs";
 
 //models
 import User from "./models/User.mjs";
-import { AcceptFriendRequest, SendFriendRequest } from "./controllers/user/friendRequests.mjs";
+import {
+  AcceptFriendRequest,
+  SendFriendRequest,
+} from "./controllers/user/friendRequests.mjs";
 import { sendMessage } from "./controllers/conversation/message.mjs";
+import { connectedUsers } from "./misc/utils.mjs";
 
 dotenv.config();
 const app = express();
@@ -64,15 +68,24 @@ export const io = new Server(server, {
 io.on("connection", async (socket) => {
   const userId = socket.handshake.query.userId;
   const socketId = socket.id;
-  console.log(`User connected: ${socketId}`);
+  connectedUsers.add(userId);
   if (userId) {
     try {
-      await User.findByIdAndUpdate(userId, { socketId: socketId });
+      const user = await User.findByIdAndUpdate(userId, { socketId: socketId });
+      const { friends } = user;
+
+      // Emit a socket event to each friend's socket connection
+      friends.forEach((friendId) => {
+        socket.to(friendId).emit("friend-online", { userId });
+      });
     } catch (error) {
       // console.log(error);
     }
   }
   socket.on("friend-request", SendFriendRequest);
   socket.on("accept-friend-request", AcceptFriendRequest);
-  socket.on('send-message',sendMessage)
+  socket.on("send-message", sendMessage);
+  socket.on("disconnect", () => {
+    connectedUsers.delete(userId);
+  });
 });

@@ -5,11 +5,16 @@ import { convertTimestamps } from '../../utils/misc'
 const Message = ({ message }) => {
 
     const owner = useMemo(() => message.sender._id === USER_ID, [message.sender._id])
-
     const time = useMemo(() => convertTimestamps(message.createdAt), [message])
+    const status = {
+        Progress: 'Progress',
+        Sent: 'Sent',
+        Recieved: "Recieved",
+        Seen: "Seen"
+    }
     return (
         <div
-            className={`chat-msg mt-1 ${owner ? "owner" : ""
+            className={`chat-msg  ${owner ? "owner" : ""
                 }`}
         >
             <div className="chat-msg-profile">
@@ -19,7 +24,7 @@ const Message = ({ message }) => {
                     alt=""
                 />
                 {owner && <div className="chat-msg-date">
-                    Message seen {time}
+                    {status[message.status]}
                 </div>}
                 {/* Adjust this part */}
             </div>
