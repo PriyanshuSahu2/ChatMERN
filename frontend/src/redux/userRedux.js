@@ -1,4 +1,4 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice, current } from "@reduxjs/toolkit";
 import { USER_ID, userRequest } from "../requestMethod";
 
 export const getFriendRequests = createAsyncThunk(
@@ -62,6 +62,7 @@ export const sendMessages = createAsyncThunk(
   async (data, { rejectWithValue }) => {
     try {
       const res = await userRequest.post(`/message/${USER_ID}`, data);
+      console.log(res)
       return res.data.data;
     } catch (error) {
       console.error(error);
@@ -83,7 +84,7 @@ const userSlice = createSlice({
   reducers: {
     ADD_MESSAGE(state, action) {
       const { conversationId } = action.payload;
-    
+      console.log(conversationId);
       if (conversationId) {
         if (!state.messages[conversationId]) {
           state.messages[conversationId] = []; // Initialize as an empty array if not exists
@@ -137,6 +138,7 @@ const userSlice = createSlice({
       .addCase(getConversations.fulfilled, (state, action) => {
         state.loading = false;
         state.conversations = action.payload;
+
         state.error = null;
       })
       .addCase(getConversations.rejected, (state, action) => {
@@ -166,22 +168,22 @@ const userSlice = createSlice({
       })
       .addCase(sendMessages.fulfilled, (state, action) => {
         const { conversationId } = action.payload;
-        console.log(action.payload);
-        if (conversationId) {
-          if (!state.messages[conversationId]) {
-            state.messages[conversationId] = []; // Initialize as an empty array if not exists
-          }
-          state.messages[conversationId] = [
-            ...state.messages[conversationId],
+        const date = new Date(action.payload.createdAt).toLocaleDateString('en-GB');
+        if (!state.messages[conversationId][date]) {
+          state.messages[conversationId][date] = [];
+          state.messages[conversationId][date] = [
+            ...state.messages[conversationId][date],
             action.payload,
           ];
-          state.conversations = state.conversations.map((data) => {
-            if (data._id === conversationId) {
-              data.lastmessage = action.payload;
-            }
-            return data;
-          });
+        } else {
+          state.messages[conversationId][date] = [
+            ...state.messages[conversationId][date],
+            action.payload,
+          ];
         }
+
+        console.log(current(state.messages[conversationId]));
+
         state.loading = false;
         state.error = null;
       })

@@ -4,8 +4,10 @@ import { convertTimestamps } from '../../utils/misc'
 
 const Message = ({ message }) => {
 
-    const owner = useMemo(() => message.sender._id === USER_ID, [message.sender._id])
+    const owner = useMemo(() => message?.sender?._id === USER_ID, [message.sender._id])
+    console.log(message?.sender?._id )    
     const time = useMemo(() => convertTimestamps(message.createdAt), [message])
+
     const status = {
         Progress: 'Progress',
         Sent: 'Sent',

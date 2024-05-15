@@ -14,7 +14,7 @@ const UserChatProfile = ({ handleCurrChat, data }) => {
                 handleCurrChat(data);
             }}
             key={data._id}
-            className="flex items-center gap-4 py-5 px-4  hover:bg-[#ededf9] cursor-pointer "
+            className={`flex items-center gap-4 py-5 px-4  hover:bg-[#ededf9] cursor-pointer ${unread > 0 ? "unread" : ""}`}
         >
             <figure className="rounded-full">
                 <img

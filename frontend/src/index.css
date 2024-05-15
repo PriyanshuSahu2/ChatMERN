@@ -41,8 +41,6 @@
     );
   }
 
-
-
   .chat-msg-img {
     height: 40px;
     width: 40px;
@@ -137,7 +135,6 @@
     color: var(--settings-icon-hover);
   }
 
-
   .chat-area-footer input {
     border: none;
     color: var(--body-color);
@@ -210,14 +207,20 @@
     display: flex;
     align-items: center;
   }
-  
+
   .border {
     flex: 1;
     border-top: 1px solid #000; /* Adjust as needed */
   }
-  
+
   .message-group-key {
     margin: 0 10px; /* Adjust spacing as needed */
   }
-  
+
+  .unread {
+    span {
+      font-weight: 700;
+      
+    }
+  }
 }
