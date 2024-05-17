@@ -61,83 +61,80 @@ export const addMessage = async (req, res) => {
 
 export const getMessages = async (req, res) => {
   try {
-    const conversationId = req.params.conversationId;
-    const userId = req.params.userId;
+    const { conversationId, userId } = req.params;
+
+    // Retrieve queued messages for the user
+    const queuedMessages = await QueueMessage.find({ recipient: userId });
+
+    // Process queued messages asynchronously
+    await processQueuedMessages(queuedMessages);
 
     // Retrieve persisted messages for the conversation ID
-    let queuedMessages = await QueueMessage.find({
-      recipient: userId,
-    });
-
-    // Process queued messages
-    await Promise.all(
-      queuedMessages.map(async (queuedMessage) => {
-        // Update status to "Seen"
-        queuedMessage.status = "Seen";
-
-        // Create a new object without the _id field
-        const messageWithoutId = {
-          conversationId: queuedMessage.conversationId,
-          sender: queuedMessage.sender,
-          recipient: queuedMessage.recipient,
-          type: queuedMessage.type,
-          message: queuedMessage.message,
-          status: queuedMessage.status,
-          createdAt: queuedMessage.createdAt,
-          updatedAt: queuedMessage.updatedAt,
-          __v: queuedMessage.__v,
-        };
-
-        console.log(messageWithoutId);
-
-        // Save queued message as a new message in the database
-        await new Message(messageWithoutId).save();
-        // Delete queued message from the queue
-        await QueueMessage.findByIdAndDelete(queuedMessage._id);
-      })
-    );
-
-    if (queuedMessages.length == 0) {
-      queuedMessages = await QueueMessage.find({
-        conversationId,
-      })
-        .populate({
-          path: "sender",
-          select: "_id profile firstName lastName",
-        })
-        .populate({
-          path: "recipient",
-          select: "_id profile firstName lastName",
-        })
-        .sort({ createdAt: 1 });
-    }
-    let persistedMessages = await Message.find({ conversationId })
+    const persistedMessages = await Message.find({ conversationId })
       .populate({
-        path: "sender",
-        select: "_id profile firstName lastName",
-      })
-      .populate({
-        path: "recipient",
+        path: "sender recipient",
         select: "_id profile firstName lastName",
       })
       .sort({ createdAt: 1 });
 
-    persistedMessages = [...persistedMessages, ...queuedMessages];
-    // Group messages by dates
-    const groupedMessages = {};
-    persistedMessages.forEach((message) => {
-      const date = new Date(message.createdAt).toLocaleDateString("en-GB");
-      if (!groupedMessages[date]) {
-        groupedMessages[date] = [];
-      }
-      groupedMessages[date].push(message);
-    });
+    // Combine persisted and queued messages
+    const allMessages = [...persistedMessages, ...queuedMessages];
+
+    // Group messages by date
+    const groupedMessages = groupMessagesByDate(allMessages);
 
     res.status(200).json(groupedMessages);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal Server Error" });
   }
+};
+
+// Process queued messages asynchronously
+const processQueuedMessages = async (queuedMessages) => {
+  await Promise.all(
+    queuedMessages.map(async (queuedMessage) => {
+      try {
+        // Update status to "Seen"
+        queuedMessage.status = "Seen";
+
+        // Create a new message without the _id field
+        const messageWithoutId = createMessageWithoutId(queuedMessage);
+
+        // Save queued message as a new message in the database
+        await Message.create(messageWithoutId);
+
+        // Delete queued message from the queue
+        await QueueMessage.findByIdAndDelete(queuedMessage._id);
+      } catch (error) {
+        console.error("Error processing queued message:", error);
+      }
+    })
+  );
+};
+
+// Create a new message without the _id field
+const createMessageWithoutId = (queuedMessage) => ({
+  conversationId: queuedMessage.conversationId,
+  sender: queuedMessage.sender,
+  recipient: queuedMessage.recipient,
+  type: queuedMessage.type,
+  message: queuedMessage.message,
+  status: "Seen",
+  createdAt: queuedMessage.createdAt,
+  updatedAt: queuedMessage.updatedAt,
+  __v: queuedMessage.__v,
+});
+
+// Group messages by date
+const groupMessagesByDate = (messages) => {
+  const groupedMessages = {};
+  messages.forEach((message) => {
+    const date = new Date(message.createdAt).toLocaleDateString("en-GB");
+    groupedMessages[date] = groupedMessages[date] || [];
+    groupedMessages[date].push(message);
+  });
+  return groupedMessages;
 };
 
 export const sendMessage = async (data) => {
